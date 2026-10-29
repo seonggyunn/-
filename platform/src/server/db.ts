@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS consent_records(id TEXT PRIMARY KEY,org_id TEXT NOT N
 CREATE TABLE IF NOT EXISTS private_files(id TEXT PRIMARY KEY,org_id TEXT NOT NULL REFERENCES organizations(id),lead_id TEXT NOT NULL REFERENCES leads(id),filename TEXT NOT NULL,content_type TEXT NOT NULL,size INTEGER NOT NULL,created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS jobs(id TEXT PRIMARY KEY,org_id TEXT NOT NULL REFERENCES organizations(id),kind TEXT NOT NULL,entity_id TEXT NOT NULL,state TEXT NOT NULL DEFAULT 'PENDING',attempts INTEGER NOT NULL DEFAULT 0,error TEXT NOT NULL DEFAULT '',dedupe_key TEXT NOT NULL UNIQUE,created_at TEXT NOT NULL);
 CREATE UNIQUE INDEX IF NOT EXISTS one_pdf_per_report ON report_files(report_id);
-CREATE TABLE IF NOT EXISTS rate_limits(key TEXT PRIMARY KEY,count INTEGER NOT NULL,window_start INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS rate_limits(key TEXT PRIMARY KEY,count INTEGER NOT NULL,window_start BIGINT NOT NULL);
 CREATE INDEX IF NOT EXISTS leads_org_status ON leads(org_id,status);
 CREATE INDEX IF NOT EXISTS tasks_org_due ON tasks(org_id,due_at);
 CREATE INDEX IF NOT EXISTS logs_org_entity ON activity_logs(org_id,entity_id,created_at);
@@ -104,6 +104,7 @@ export async function migrate() {
     if (process.env.DATABASE_URL) {
       pool ||= new Pool({ connectionString: process.env.DATABASE_URL, max: 5 });
       await pool.query(schema);
+      await pool.query("ALTER TABLE rate_limits ALTER COLUMN window_start TYPE BIGINT");
       await pool.query(securitySql);
     } else {
       sqliteDb().exec(schema);

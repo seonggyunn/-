@@ -30,9 +30,16 @@ if (process.env.RUN_POSTGRES_TEST !== "1") {
   delete process.env.RESEND_API_KEY;
   delete process.env.AI_API_KEY;
   const { migrate, db, closeDb } = await import("../src/server/db");
-  const { provision } = await import("../src/server/auth");
+  const { provision, rateLimit } = await import("../src/server/auth");
   const s = await import("../src/server/service");
   await migrate();
+  await test("PostgreSQL 밀리초 제한 시각 저장·횟수 제한", async () => {
+    await rateLimit("pg-rate-test", 2);
+    await rateLimit("pg-rate-test", 2);
+    await assert.rejects(() => rateLimit("pg-rate-test", 2));
+    const rows = await db.all("SELECT window_start FROM rate_limits");
+    assert.ok(Number(rows[0].window_start) > 2147483647);
+  });
   const admin = await provision(
     "pg-admin@example.invalid",
     "postgres-test-password-2026",
