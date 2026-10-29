@@ -45,3 +45,13 @@ Render Environment에 `ADMIN_EMAIL`, 12~256자 `ADMIN_PASSWORD`, `DATABASE_URL`�
 동일 이메일이 존재하면 비밀번호·역할을 변경하지 않는다. 초기 로그인 성공 후
 `BOOTSTRAP_ADMIN`, `ADMIN_PASSWORD`를 삭제하고 재배포한다. 기존 계정은 유지된다.
 이 설정은 Supabase Auth 계정이 아니라 앱의 `public.users` 관리자를 생성한다.
+
+### 신규 신청 메일 자동 처리
+
+`AUTO_EMAIL_DISPATCH=true`, `RESEND_API_KEY`, `EMAIL_FROM`을 Render에 설정하면
+접수 응답 후 해당 신청의 ACK/NEW_LEAD만 처리한다. 운영자 알림 수신자는
+`ADMIN_NOTIFICATION_EMAIL`로 지정한다. 기존 일일 10회 제한·동의 검사·중복 방지가 적용된다.
+백그라운드 작업은 상시 워커가 아니므로 프로세스 종료 시 지연된 대기는 관리자 처리 버튼으로 복구한다.
+Resend 테스트 발신자 `한칸 운영실 <onboarding@resend.dev>`는 Resend 가입 계정
+본인 주소로만 테스트할 수 있다. 고객 발송에는 인증된 발신 도메인이 필요하다.
+제공자 ACCEPTED는 수신함 도착 확인과 다르다. PREVIEW는 자동 활성화하지 않는다.

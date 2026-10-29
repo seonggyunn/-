@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { z } from "zod";
 import {
   actor,
@@ -77,7 +77,32 @@ async function handle(req: NextRequest) {
       );
       if (data.email)
         await rateLimit("intake-email:" + String(data.email).toLowerCase(), 5);
-      return NextResponse.json(await service.createLead(data), { status: 201 });
+      const result = await service.createLead(data);
+      if (
+        result.stored &&
+        result.id &&
+        process.env.AUTO_EMAIL_DISPATCH === "true"
+      ) {
+        after(async () => {
+          try {
+            await dispatch(
+              {
+                id: "system:intake",
+                org_id: process.env.PUBLIC_ORG_ID || "agency",
+                email: "",
+                name: "신청 알림 자동 처리",
+                role: "admin",
+              },
+              result.id,
+            );
+          } catch {
+            console.error(
+              "신청 알림 처리 실패. 관리자 알림 목록을 확인하세요.",
+            );
+          }
+        });
+      }
+      return NextResponse.json(result, { status: 201 });
     }
     const a = await actor(req);
     if (area === "auth" && entity === "me") return NextResponse.json(a);
@@ -389,12 +414,18 @@ async function handle(req: NextRequest) {
     const codes: string[] = [];
     const inspectCode = (value: unknown, depth = 0) => {
       if (!value || typeof value !== "object" || depth > 3) return;
-      const item = value as { code?: unknown; cause?: unknown; errors?: unknown };
+      const item = value as {
+        code?: unknown;
+        cause?: unknown;
+        errors?: unknown;
+      };
       if (typeof item.code === "string" && /^[A-Z0-9_]{2,64}$/.test(item.code))
         codes.push(item.code);
       inspectCode(item.cause, depth + 1);
       if (Array.isArray(item.errors))
-        item.errors.slice(0, 5).forEach((child) => inspectCode(child, depth + 1));
+        item.errors
+          .slice(0, 5)
+          .forEach((child) => inspectCode(child, depth + 1));
     };
     inspectCode(e);
     console.error("요청 처리 실패:", {

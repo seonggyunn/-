@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { AppError, Actor } from "./auth";
 import { db, transaction } from "./db";
 import { now, log, koreaDate } from "./service";
-export async function dispatch(a: Actor) {
+export async function dispatch(a: Actor, intakeLeadId?: string) {
   if (a.role !== "admin")
     throw new AppError(403, "관리자만 알림을 처리할 수 있습니다.");
   if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM)
@@ -13,8 +13,10 @@ export async function dispatch(a: Actor) {
     };
   let accepted = 0;
   const rows = await db.all(
-    "SELECT id FROM notifications WHERE org_id=? AND state='PENDING' AND attempts<3 ORDER BY created_at LIMIT 10",
-    [a.org_id],
+    "SELECT id FROM notifications WHERE org_id=? AND state='PENDING' AND attempts<3" +
+      (intakeLeadId ? " AND lead_id=? AND kind IN ('ACK','NEW_LEAD')" : "") +
+      " ORDER BY created_at LIMIT 10",
+    intakeLeadId ? [a.org_id, intakeLeadId] : [a.org_id],
   );
   for (const candidate of rows) {
     const claimed = await transaction(async (q) => {
