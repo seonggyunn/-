@@ -70,6 +70,28 @@ const capabilityLabels: Record<string, string> = {
   manual: "승인 기반 수동 작업",
   manual_records_only: "수동 확인 기록 · PG 미연결",
 };
+const historyLabels: Record<string, string> = {
+  LEAD_CREATED: "신청 저장",
+  STATUS_CHANGED: "업무 상태 변경",
+  LEAD_UPDATED: "담당·메모 변경",
+  AUDIT_RECORDED: "수동 진단 기록",
+  CHANGE_PROPOSED: "변경안 등록",
+  APPROVAL_VERIFIED: "권한 확인·승인 기록",
+  APPROVAL_REVOKED: "승인 철회",
+  MANUAL_EXECUTION_RECORDED: "수동 작업 증빙",
+  MANUAL_RESULT_VERIFIED: "수동 결과 재확인",
+  REPORT_CREATED: "보고서 버전 생성",
+  REPORT_PDF_STORED: "비공개 PDF 저장",
+  CLIENT_CONVERTED: "계약 고객 등록",
+  CONTRACT_RECORDED: "계약·입금 상태 기록",
+  MONTHLY_TASK_CREATED: "월간 점검 업무 생성",
+  CONTACT_CONSENT_WITHDRAWN: "연락 동의 철회",
+  PRIVATE_EVIDENCE_STORED: "비공개 증빙 저장",
+  EMAIL_ACCEPTED: "메일 제공자 접수",
+  APPROVAL_REQUEST_PREPARED: "승인 요청 알림 준비",
+  RETENTION_ANONYMIZED: "보관기간 종료 처리",
+  PASSWORD_CHANGED: "비밀번호 변경",
+};
 const stages = Object.keys(labels);
 const tabs = [
   ["dashboard", "대시보드"],
@@ -638,7 +660,10 @@ export default function Admin({ path }: { path: string[] }) {
               ))}
               {lead.history.map((h: any) => (
                 <p key={h.id}>
-                  <b>{h.action}</b> · {h.created_at}
+                  <b>{historyLabels[h.action] || h.action}</b> ·{" "}
+                  {new Date(h.created_at).toLocaleString("ko-KR", {
+                    timeZone: "Asia/Seoul",
+                  })}
                   <small>{h.details}</small>
                 </p>
               ))}

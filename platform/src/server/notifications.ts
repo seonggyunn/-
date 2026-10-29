@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { AppError, Actor } from "./auth";
 import { db, transaction } from "./db";
-import { now, log } from "./service";
+import { now, log, koreaDate } from "./service";
 export async function dispatch(a: Actor) {
   if (a.role !== "admin")
     throw new AppError(403, "관리자만 알림을 처리할 수 있습니다.");
@@ -20,16 +20,25 @@ export async function dispatch(a: Actor) {
     const claimed = await transaction(async (q) => {
       await q.run("UPDATE organizations SET name=name WHERE id=?", [a.org_id]);
       const [total] = await q.all(
-        "SELECT COALESCE(SUM(attempts),0) AS attempts FROM notifications WHERE org_id=? AND updated_at>=?",
-        [a.org_id, now().slice(0, 10)],
+        "SELECT COUNT(*) AS attempts FROM activity_logs WHERE org_id=? AND action='EMAIL_ATTEMPT_RESERVED' AND created_at>=?",
+        [a.org_id, new Date(koreaDate() + "T00:00:00+09:00").toISOString()],
       );
       if (total.attempts >= 10) return null;
-      return (
+      const message = (
         await q.run(
           "UPDATE notifications SET state='SENDING',attempts=attempts+1,updated_at=? WHERE id=? AND org_id=? AND state='PENDING' RETURNING *",
           [now(), candidate.id, a.org_id],
         )
       )[0];
+      if (message)
+        await log(
+          q,
+          a,
+          message.lead_id || message.id,
+          "EMAIL_ATTEMPT_RESERVED",
+          { notification: message.id },
+        );
+      return message;
     });
     if (!claimed) continue;
     if (["ACK", "APPROVAL_REQUEST", "REPORT_READY"].includes(claimed.kind)) {

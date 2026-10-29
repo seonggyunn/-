@@ -4,6 +4,8 @@ import { Actor, AppError, hash } from "./auth";
 import { db, SQL, Row, transaction, migrate } from "./db";
 import { provider } from "../integrations/providers";
 export const now = () => new Date().toISOString();
+export const koreaDate = () =>
+  new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Seoul" });
 const id = () => randomUUID();
 export const STATES = [
   "NEW",
@@ -42,10 +44,20 @@ export const url = z
   .string()
   .trim()
   .max(2000)
-  .refine(
-    (v) => !v || (/^https?:\/\//.test(v) && !new URL(v).username),
-    "공개 http(s) 주소를 입력하세요.",
-  );
+  .refine((v) => {
+    if (!v) return true;
+    try {
+      const u = new URL(v);
+      return (
+        ["http:", "https:"].includes(u.protocol) &&
+        Boolean(u.hostname) &&
+        !u.username &&
+        !u.password
+      );
+    } catch {
+      return false;
+    }
+  }, "공개 http(s) 주소를 입력하세요.");
 export const intake = z.object({
   business: z.string().trim().min(1).max(150),
   industry: z.string().trim().min(1).max(100),
@@ -147,7 +159,7 @@ export async function createLead(raw: unknown): Promise<{
         d.business,
         d.services.slice().sort(),
         d.notes,
-        new Date().toISOString().slice(0, 10),
+        koreaDate(),
       ]),
     );
     const [existing] = await q.all(
@@ -799,7 +811,7 @@ export async function maintenance(a: Actor) {
           process.env.ADMIN_NOTIFICATION_EMAIL,
           "지연된 업무가 있습니다",
           "운영 화면에서 기한과 담당자를 확인하세요.",
-          "overdue:" + t.id + ":" + now().slice(0, 10),
+          "overdue:" + t.id + ":" + koreaDate(),
         );
     return { monthlyTasks: contracts.length, overdue: overdue.length };
   });

@@ -66,3 +66,7 @@ worker는 월간·기한 업무→PDF 작업→알림을 한 번 처리한다. �
 - [보안·보관·복구](docs/SECURITY.md)
 - [실제 자동화 범위와 남은 연결](docs/STATUS.md)
 - [요구사항 원문](docs/PROJECT_SPEC.md)
+
+## 화면과 실제 검증 산출물
+
+[데스크톱](docs/screenshots/home-desktop.png) · [모바일](docs/screenshots/home-mobile.png) · [테스트용 한글 보고서](docs/examples/test-audit-report.pdf). 보고서의 고객은 격리된 테스트 자료이며 실제 실적이 아니다.

@@ -48,7 +48,7 @@ if (command === "admin") {
   const cutoff = new Date(Date.now() - 30 * 86400000).toISOString();
   const rows = await db.all(
     "SELECT id,org_id FROM leads l WHERE l.updated_at<? AND l.status IN ('NEW','REJECTED','CANCELLED') AND NOT EXISTS(SELECT 1 FROM clients c WHERE c.lead_id=l.id) AND NOT EXISTS(SELECT 1 FROM activity_logs a WHERE a.entity_id=l.id AND a.org_id=l.org_id AND a.created_at>=?)",
-    [cutoff,cutoff],
+    [cutoff, cutoff],
   );
   for (const l of rows) {
     await db.run(
