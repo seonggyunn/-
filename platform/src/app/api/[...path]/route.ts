@@ -385,10 +385,23 @@ async function handle(req: NextRequest) {
       );
     if (e instanceof AppError)
       return NextResponse.json({ error: e.message }, { status: e.status });
-    console.error(
-      "요청 처리 실패:",
-      e instanceof Error ? e.name : "UnknownError",
-    );
+    // Never log connection strings, SQL, messages, or customer input.
+    const codes: string[] = [];
+    const inspectCode = (value: unknown, depth = 0) => {
+      if (!value || typeof value !== "object" || depth > 3) return;
+      const item = value as { code?: unknown; cause?: unknown; errors?: unknown };
+      if (typeof item.code === "string" && /^[A-Z0-9_]{2,64}$/.test(item.code))
+        codes.push(item.code);
+      inspectCode(item.cause, depth + 1);
+      if (Array.isArray(item.errors))
+        item.errors.slice(0, 5).forEach((child) => inspectCode(child, depth + 1));
+    };
+    inspectCode(e);
+    console.error("요청 처리 실패:", {
+      name: e instanceof Error ? e.name : "UnknownError",
+      codes: [...new Set(codes)],
+      database: process.env.DATABASE_URL ? "postgresql" : "sqlite",
+    });
     return NextResponse.json(
       { error: "처리 중 문제가 발생했습니다. 잠시 후 다시 시도하세요." },
       { status: 500 },
