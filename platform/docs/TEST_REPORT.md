@@ -45,6 +45,6 @@
 
 ## 화면과 산출물
 
-[데스크톱 화면](screenshots/home-desktop.png), [모바일 화면](screenshots/home-mobile.png), [테스트 보고서 PDF](examples/../examples/test-audit-report.pdf).
+[데스크톱 화면](screenshots/home-desktop.png), [모바일 화면](screenshots/home-mobile.png), [테스트 보고서 PDF](examples/test-audit-report.pdf).
 
 화면은 실행된 앱에서 촬영했다. 예시 PDF의 공방·담당자·신청은 격리된 브라우저 테스트용 모의자료이며 실제 고객 실적이 아니다. 실제 외부 메일은 보내지 않았다. Docker 임시 컨테이너는 검증 후 제거했다.
