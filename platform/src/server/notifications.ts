@@ -68,6 +68,13 @@ export async function dispatch(a: Actor, intakeLeadId?: string) {
         },
         body: JSON.stringify({
           from: process.env.EMAIL_FROM,
+          ...(process.env.EMAIL_REPLY_TO || process.env.ADMIN_NOTIFICATION_EMAIL
+            ? {
+                reply_to:
+                  process.env.EMAIL_REPLY_TO ||
+                  process.env.ADMIN_NOTIFICATION_EMAIL,
+              }
+            : {}),
           to: [claimed.recipient],
           subject: claimed.subject,
           text: claimed.body,

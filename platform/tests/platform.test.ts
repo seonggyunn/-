@@ -244,9 +244,12 @@ await test("알림 제공자 결과 불명 후 중복 발송 방지", async () =
   ]);
   process.env.RESEND_API_KEY = "test-not-a-real-key";
   process.env.EMAIL_FROM = "test@example.com";
+  process.env.ADMIN_NOTIFICATION_EMAIL = "operator@example.invalid";
   const original = globalThis.fetch;
   let calls = 0;
-  globalThis.fetch = async () => {
+  let replyTo = "";
+  globalThis.fetch = async (_url, options) => {
+    replyTo = JSON.parse(String(options?.body)).reply_to;
     calls++;
     throw new Error("simulated timeout");
   };
@@ -254,9 +257,11 @@ await test("알림 제공자 결과 불명 후 중복 발송 방지", async () =
     await dispatch(a);
     await dispatch(a);
     assert.equal(calls, 1);
+    assert.equal(replyTo, "operator@example.invalid");
     assert.equal((await s.dashboard(a)).notifications[0].state, "UNKNOWN");
   } finally {
     globalThis.fetch = original;
+    delete process.env.ADMIN_NOTIFICATION_EMAIL;
     delete process.env.RESEND_API_KEY;
     delete process.env.EMAIL_FROM;
   }
@@ -408,6 +413,7 @@ await test("연락 동의 철회 후 대기 알림과 재시도는 외부 전송
     assert.equal(calls, 0);
   } finally {
     globalThis.fetch = original;
+    delete process.env.ADMIN_NOTIFICATION_EMAIL;
     delete process.env.RESEND_API_KEY;
     delete process.env.EMAIL_FROM;
   }

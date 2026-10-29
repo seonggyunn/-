@@ -55,3 +55,7 @@ Render Environment에 `ADMIN_EMAIL`, 12~256자 `ADMIN_PASSWORD`, `DATABASE_URL`�
 Resend 테스트 발신자 `한칸 운영실 <onboarding@resend.dev>`는 Resend 가입 계정
 본인 주소로만 테스트할 수 있다. 고객 발송에는 인증된 발신 도메인이 필요하다.
 제공자 ACCEPTED는 수신함 도착 확인과 다르다. PREVIEW는 자동 활성화하지 않는다.
+
+고객 회신은 `EMAIL_REPLY_TO`를 Resend `reply_to`로 전달한다. 미지정 시
+`ADMIN_NOTIFICATION_EMAIL`을 사용한다. 이는 발신 도메인의 수신함을 생성하지 않는다.
+새 메일에서 답장 버튼을 눌러 수신 주소가 운영자 Gmail인지 확인한다.
