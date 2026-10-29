@@ -22,9 +22,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=3000 CHROMIUM_PATH=/usr/bin/chromium LOCAL_DB_PATH=/app/data/operations.sqlite PRIVATE_STORAGE_PATH=/app/data/private
 COPY --from=builder --chown=node:node /app/.next/standalone/ ./
 COPY --from=builder --chown=node:node /app/scripts/provision-runtime.mjs ./provision-runtime.mjs
+COPY --from=builder --chown=node:node /app/scripts/runtime-entry.mjs ./runtime-entry.mjs
 COPY --from=builder --chown=node:node /app/supabase/migrations/ ./migrations/
 RUN mkdir -p /app/data && chown node:node /app/data
 USER node
 EXPOSE 3000
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["node", "server.js"]
+CMD ["node", "runtime-entry.mjs"]

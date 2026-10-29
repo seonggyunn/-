@@ -36,3 +36,12 @@ CLI환경에서1분간격 `npm run worker`를스케줄한다. PDF작업과메일
 - 테스트자료가운영KPI에포함되지않도록격리또는정리
 
 현재이체크리스트를공개운영URL에서완료한상태는아니다. 실제호스팅·Supabase·메일·Google/Naver API자격증명이없어공개배포와외부변경을주장하지않는다.
+
+### Render 무료 환경의 첫 관리자
+
+Docker 시작 시 `BOOTSTRAP_ADMIN=true`를 명시한 경우에만 초기 설정을 실행한다.
+Render Environment에 `ADMIN_EMAIL`, 12~256자 `ADMIN_PASSWORD`, `DATABASE_URL`이 필요하다.
+비밀번호는 Render에 직접 입력하고 채팅/저장소에 기록하지 않는다.
+동일 이메일이 존재하면 비밀번호·역할을 변경하지 않는다. 초기 로그인 성공 후
+`BOOTSTRAP_ADMIN`, `ADMIN_PASSWORD`를 삭제하고 재배포한다. 기존 계정은 유지된다.
+이 설정은 Supabase Auth 계정이 아니라 앱의 `public.users` 관리자를 생성한다.

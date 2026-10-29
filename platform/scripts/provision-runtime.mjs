@@ -8,7 +8,8 @@ if (!email || !/^\S+@\S+\.\S+$/.test(email))
   throw new Error("ADMIN_EMAIL을 지정하세요.");
 const password =
   process.env.ADMIN_PASSWORD || randomBytes(24).toString("base64url");
-if (password.length < 12) throw new Error("비밀번호12자이상필요");
+if (password.length < 12 || password.length > 256)
+  throw new Error("비밀번호12자이상필요");
 const salt = randomBytes(16).toString("hex"),
   digest = salt + ":" + scryptSync(password, salt, 64).toString("hex"),
   now = new Date().toISOString();
@@ -46,7 +47,7 @@ await sql(
   ["agency", "한칸 운영실", now],
 );
 await sql(
-  "INSERT INTO users(id,org_id,email,name,password_hash,role,created_at) VALUES(?,?,?,?,?,?,?)",
+  "INSERT INTO users(id,org_id,email,name,password_hash,role,created_at) VALUES(?,?,?,?,?,?,?) ON CONFLICT(email) DO NOTHING",
   [
     randomUUID(),
     "agency",
@@ -67,5 +68,8 @@ if (!process.env.ADMIN_PASSWORD) {
   console.log(
     "생성 완료. 초기 자격증명: /app/data/initial-admin.json (공개 금지)",
   );
-} else console.log("관리자 생성 완료");
+} else
+  console.log(
+    "관리자 초기 설정 완료. 기존 계정의 비밀번호·권한은 변경하지 않았습니다.",
+  );
 if (pool) await pool.end();
