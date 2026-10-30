@@ -54,6 +54,9 @@ const codeLabels: Record<string, string> = {
   PROCESSING: "처리 중",
 };
 const capabilityLabels: Record<string, string> = {
+  storage: "파일 저장소",
+  supabase_private_configured: "Supabase 비공개 저장 설정됨",
+  local_ephemeral: "서버 로컬 저장 · 재배포 시 유실 가능",
   database: "데이터베이스",
   email: "이메일",
   ai: "초안 작성",

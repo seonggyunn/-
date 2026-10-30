@@ -322,6 +322,10 @@ export async function dashboard(a: Actor) {
       ).length,
     },
     capabilities: {
+      storage:
+        process.env.STORAGE_PROVIDER === "supabase"
+          ? "supabase_private_configured"
+          : "local_ephemeral",
       database: process.env.DATABASE_URL ? "postgres" : "sqlite",
       email:
         process.env.RESEND_API_KEY && process.env.EMAIL_FROM
