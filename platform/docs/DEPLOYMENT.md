@@ -59,3 +59,15 @@ Resend 테스트 발신자 `한칸 운영실 <onboarding@resend.dev>`는 Resend 
 고객 회신은 `EMAIL_REPLY_TO`를 Resend `reply_to`로 전달한다. 미지정 시
 `ADMIN_NOTIFICATION_EMAIL`을 사용한다. 이는 발신 도메인의 수신함을 생성하지 않는다.
 새 메일에서 답장 버튼을 눌러 수신 주소가 운영자 Gmail인지 확인한다.
+
+### Supabase 비공개 파일 저장
+
+Storage에서 `hankan-private` 버킷을 만들고 Public을 끈다. 공개 읽기 정책을 만들지 않는다.
+Render 환경변수: `STORAGE_PROVIDER=supabase`, `SUPABASE_URL=https://<project-ref>.supabase.co`,
+`SUPABASE_STORAGE_BUCKET=hankan-private`, `SUPABASE_SERVICE_ROLE_KEY=<서버 전용 service_role 키>`.
+키는 브라우저/채팅/저장소에 공개하지 않는다. 각 연산은 버킷이 private인지 검사하며,
+서버의 조직 소유권 확인 후 해시된 조직 폴더로 저장/다운로드한다. 서명된 공개 URL을 발급하지 않는다.
+전환 전에 기존 로컬 파일을 별도로 백업·이관해야 한다. 기존 파일은 자동 이관하지 않는다.
+검증: 새 증빙 업로드/다운로드 후 Render 재배포, 같은 파일 재다운로드. PDF Chromium의
+무료 Render 메모리 한계는 별도로 확인해야 한다. 이 구현은 로컬과 모의 원격 테스트를 거쳤으며
+실제 Supabase 계정 연동은 환경변수 입력 후 검증한다.

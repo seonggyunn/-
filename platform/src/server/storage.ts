@@ -1,19 +1,9 @@
+import { putObject, getObject } from "./object-store";
 import { randomUUID, createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { join } from "node:path";
-import { Actor, AppError, hash } from "./auth";
+import { Actor, AppError } from "./auth";
 import { db, transaction } from "./db";
 import { owned, now, enqueue, log } from "./service";
 import { reportHtml, renderPdf } from "../reports/render";
-const folder = async (org: string) => {
-  const path = join(
-    /* turbopackIgnore: true */ process.env.PRIVATE_STORAGE_PATH ||
-      ".data/private",
-    hash(org),
-  );
-  await mkdir(path, { recursive: true, mode: 0o700 });
-  return path;
-};
 export async function saveEvidence(a: Actor, raw: any) {
   await owned(db, "leads", String(raw.lead_id), a);
   const filename = String(raw.filename || "")
@@ -53,11 +43,7 @@ export async function saveEvidence(a: Actor, raw: any) {
   )
     throw new AppError(400, "JPEG 형식을 확인하세요.");
   const id = randomUUID();
-  await writeFile(
-    /* turbopackIgnore: true */ join(await folder(a.org_id), id),
-    content,
-    { mode: 0o600, flag: "wx" },
-  );
+  await putObject(a.org_id, id, content, raw.content_type);
   await transaction(async (q) => {
     await q.run(
       "INSERT INTO private_files(id,org_id,lead_id,filename,content_type,size,created_at) VALUES(?,?,?,?,?,?,?)",
@@ -82,23 +68,27 @@ export async function evidence(a: Actor, id: string) {
   const file = await owned(db, "private_files", id, a);
   return {
     file,
-    content: await readFile(
-      /* turbopackIgnore: true */ join(await folder(a.org_id), file.id),
-    ),
+    content: await getObject(a.org_id, file.id),
   };
 }
 export async function pdf(a: Actor, id: string) {
   const report = await owned(db, "reports", id, a);
-  const filePath = join(await folder(a.org_id), report.id + ".pdf");
+
   const [existing] = await db.all(
     "SELECT * FROM report_files WHERE report_id=? AND org_id=?",
     [id, a.org_id],
   );
-  if (existing) return readFile(filePath);
+  if (existing) return getObject(a.org_id, report.id + ".pdf");
   const content = await renderPdf(
     reportHtml(JSON.parse(report.content), report.version),
   );
-  await writeFile(filePath, content, { mode: 0o600 });
+  await putObject(
+    a.org_id,
+    report.id + ".pdf",
+    content,
+    "application/pdf",
+    true,
+  );
   await db.run(
     "INSERT INTO report_files(id,org_id,report_id,filename,sha256,created_at) VALUES(?,?,?,?,?,?) ON CONFLICT(report_id) DO NOTHING",
     [
