@@ -75,6 +75,65 @@ try {
   }
   console.log("PASS 공개 경로10개 실제 응답·렌더링");
   await page.goto(base);
+  // Verify disclosures with a pointer and keyboard, and actual slide content changes.
+  const serviceMenu = page.getByRole("button", {
+    name: "서비스 안내",
+    exact: false,
+  });
+  await serviceMenu.hover();
+  await page
+    .getByRole("link", { name: /어떤 도움을 받을 수 있나요/ })
+    .waitFor();
+  assert.equal(await serviceMenu.getAttribute("aria-expanded"), "true");
+  await page.keyboard.press("Escape");
+  assert.equal(await serviceMenu.getAttribute("aria-expanded"), "false");
+  await serviceMenu.focus();
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Tab");
+  assert.ok(
+    (await page.locator(":focus").textContent())?.includes("어떤 도움"),
+  );
+  await page.keyboard.press("Escape");
+  assert.equal(
+    await serviceMenu.evaluate((el) => el === document.activeElement),
+    true,
+  );
+  await page.getByRole("button", { name: "다음 고민 보기" }).click();
+  assert.ok((await page.locator("h1").textContent())?.includes("맛있는 메뉴"));
+  await page.getByRole("button", { name: "다음 고민 보기" }).click();
+  assert.ok((await page.locator("h1").textContent())?.includes("주차는요"));
+  await page.getByRole("button", { name: "다음 고민 보기" }).click();
+  assert.ok(
+    (await page.locator("h1").textContent())?.includes("우리 가게의 매력"),
+  );
+  await page.getByRole("button", { name: "비용과 운영", exact: true }).click();
+  await page
+    .locator("summary", { hasText: "가격과 일정은 어떻게 정하나요?" })
+    .click();
+  assert.ok(
+    (await page.locator("details[open]").textContent())?.includes(
+      "견적으로 안내",
+    ),
+  );
+  await page.getByRole("button", { name: /빠른 안내/ }).hover();
+  await page
+    .locator("#quick-help-panel")
+    .getByRole("link", { name: /무료 진단 신청/ })
+    .waitFor();
+  await page.keyboard.press("Escape");
+  await page.mouse.move(0, 0);
+  await page.goto(base);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  assert.equal(
+    await page
+      .locator(".landing-copy")
+      .evaluate((el) => getComputedStyle(el).animationName),
+    "none",
+  );
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  console.log(
+    "PASS 펼침 메뉴 호버·키보드·Escape, 슬라이드 순환, FAQ 분류·답변, 빠른 안내, 모션 감소",
+  );
   mkdirSync(".data/test-artifacts", { recursive: true });
   await page.screenshot({
     path: ".data/test-artifacts/home-desktop.png",
@@ -91,6 +150,17 @@ try {
     path: ".data/test-artifacts/home-mobile.png",
     fullPage: true,
   });
+  await page.getByRole("button", { name: "메뉴 열기", exact: true }).click();
+  await page.getByRole("button", { name: "서비스 안내", exact: false }).click();
+  await page.getByRole("link", { name: /어떤 도움을 받을 수 있나요/ }).click();
+  await page.waitForURL(base + "/services");
+  assert.equal(
+    await page
+      .getByRole("button", { name: "메뉴 열기", exact: true })
+      .getAttribute("aria-expanded"),
+    "false",
+  );
+  console.log("PASS 모바일 메뉴 터치 열기·하위 페이지 이동·닫기");
   await page.goto(base + "/free-audit");
   assert.equal(
     await page.evaluate(

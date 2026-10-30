@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./public.css";
+import "./public-interactive.css";
 export const metadata: Metadata = {
   title: {
     default: "한칸데이터 | 식당 네이버 플레이스 개선·운영",

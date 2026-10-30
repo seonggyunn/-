@@ -1,6 +1,12 @@
 import Link from "next/link";
-import { pages, packages, steps, faqs, sampleRows } from "../content";
+import { pages, packages, steps, sampleRows } from "../content";
 import IntakeForm from "./IntakeForm";
+import {
+  PublicHeader,
+  InteractiveHero,
+  InteractiveFaq,
+  PublicEffects,
+} from "./PublicInteractive";
 
 function CallToAction() {
   return (
@@ -168,116 +174,15 @@ function Operator() {
 function Home() {
   return (
     <>
-      <section className="hero home-hero">
-        <div className="hero-copy">
-          <span className="hero-kicker">
-            <span />
-            동네 개인 식당을 위한 온라인 개선
-          </span>
-          <h1>
-            우리 가게의 장점,
-            <br />
-            <em>온라인에서도</em>
-            <br />잘 보이도록.
-          </h1>
-          <p>
-            사장님이 아는 가게의 매력.
-            <br />
-            손님도 알 수 있게 소개·메뉴·사진·이용 안내를
-            <br className="desktop-break" /> 정리하고, 네이버 플레이스 적용까지
-            돕습니다.
-          </p>
-          <div className="hero-actions">
-            <Link className="btn" href="/free-audit">
-              무료로 우리 가게 진단받기 <span aria-hidden="true">↗</span>
-            </Link>
-            <Link className="quiet" href="/cases">
-              개선 예시 보기 <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-          <small className="hero-note">
-            매장 1곳 · 개선 방향 최대 3개
-            <br />
-            완성 원고·사진 작업·실제 수정은 별도 범위입니다.
-          </small>
-        </div>
-        <aside
-          className="preview-stage"
-          aria-label="가상의 매장 개선 노트 예시"
-        >
-          <div className="preview-stamp">가게다움을 발견하는 일</div>
-          <div className="note-sheet">
-            <div className="note-top">
-              <span className="note-mark">한</span>
-              <span>매장 개선 노트</span>
-              <span className="note-example">가상 예시</span>
-            </div>
-            <div className="note-title">
-              <span>가상의 한칸식당</span>
-              <h2>
-                첫 방문 전에,
-                <br />
-                궁금한 점부터.
-              </h2>
-              <p>메뉴 구성과 포장 안내를 함께 보여준다면?</p>
-            </div>
-            <div className="note-tiles">
-              <div>
-                <span className="tile-icon" aria-hidden="true">
-                  Aa
-                </span>
-                <strong>소개·메뉴</strong>
-                <small>가게의 특징을 구체적으로</small>
-              </div>
-              <div>
-                <span className="tile-icon" aria-hidden="true">
-                  ▧
-                </span>
-                <strong>사진·이용 안내</strong>
-                <small>방문 전에 알기 쉽게</small>
-              </div>
-            </div>
-            <div className="note-caption">
-              <span>확인이 필요한 부분</span>
-              <p>메뉴는 있지만, 무엇이 포함되는지 설명이 없어요.</p>
-            </div>
-            <div className="note-caption note-suggestion">
-              <span>고객 확인 후 쓸 문구 예시</span>
-              <p>
-                “점심 정식은 밥·국·반찬으로 구성됩니다. 포장이 필요하면 주문할
-                때 말씀해주세요.”
-              </p>
-            </div>
-            <div className="note-foot">
-              <span className="status-dot" />
-              가설과 사실을 구분하고, 승인 후 적용합니다.
-            </div>
-          </div>
-          <small className="preview-disclaimer">
-            형식 설명을 위한 가상 자료입니다. 실제 고객 작업·성과가 아닙니다.
-          </small>
-        </aside>
-      </section>
-      <div className="service-ribbon">
-        <span>우선은 네이버 플레이스부터</span>
-        <div>
-          <b>소개</b>
-          <span aria-hidden="true">·</span>
-          <b>메뉴</b>
-          <span aria-hidden="true">·</span>
-          <b>고객 제공 사진</b>
-          <span aria-hidden="true">·</span>
-          <b>이용 안내</b>
-        </div>
-      </div>
+      <InteractiveHero />
       <section className="section home-section">
         <div className="section-heading">
           <div>
             <span className="eyebrow">무엇을 도와드리나요</span>
             <h2>
-              정보를 채우는 것보다,
+              사장님의 가게를,
               <br />
-              가게를 이해하기 쉽게.
+              손님이 이해하기 쉽게.
             </h2>
           </div>
           <p>
@@ -454,14 +359,7 @@ function Home() {
             질문 전체 보기 →
           </Link>
         </div>
-        <div className="faq">
-          {faqs.slice(1, 4).map(([q, a]) => (
-            <details className="card" key={q}>
-              <summary>{q}</summary>
-              <p>{a}</p>
-            </details>
-          ))}
-        </div>
+        <InteractiveFaq compact />
       </section>
       <section className="section home-section">
         <CallToAction />
@@ -475,20 +373,8 @@ export default function Public({ page = "" }: { page?: string }) {
       <a className="skip-link" href="#public-content">
         본문으로 바로가기
       </a>
-      <header className="top">
-        <Link href="/" className="brand">
-          <i>한</i> 한칸데이터
-        </Link>
-        <nav aria-label="주요 메뉴">
-          <Link href="/services">서비스</Link>
-          <Link href="/cases">개선 샘플</Link>
-          <Link href="/pricing">범위·요금</Link>
-          <Link href="/faq">FAQ</Link>
-        </nav>
-        <Link className="btn small" href="/free-audit">
-          무료 진단 신청 ↗
-        </Link>
-      </header>
+      <PublicHeader />
+      <PublicEffects showShortcut={page !== "free-audit"} />
       <main id="public-content">
         {!page ? (
           <Home />
@@ -616,14 +502,7 @@ export default function Public({ page = "" }: { page?: string }) {
               </>
             ) : page === "faq" ? (
               <>
-                <div className="faq">
-                  {faqs.map(([q, a]) => (
-                    <details className="card" key={q}>
-                      <summary>{q}</summary>
-                      <p>{a}</p>
-                    </details>
-                  ))}
-                </div>
+                <InteractiveFaq />
                 <CallToAction />
               </>
             ) : page === "contact" ? (
