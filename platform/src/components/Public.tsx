@@ -165,9 +165,316 @@ function Operator() {
     </article>
   );
 }
-export default function Public({ page = "" }: { page?: string }) {
+function Home() {
   return (
     <>
+      <section className="hero home-hero">
+        <div className="hero-copy">
+          <span className="hero-kicker">
+            <span />
+            동네 개인 식당을 위한 온라인 개선
+          </span>
+          <h1>
+            우리 가게의 장점,
+            <br />
+            <em>온라인에서도</em>
+            <br />잘 보이도록.
+          </h1>
+          <p>
+            사장님이 아는 가게의 매력.
+            <br />
+            손님도 알 수 있게 소개·메뉴·사진·이용 안내를
+            <br className="desktop-break" /> 정리하고, 네이버 플레이스 적용까지
+            돕습니다.
+          </p>
+          <div className="hero-actions">
+            <Link className="btn" href="/free-audit">
+              무료로 우리 가게 진단받기 <span aria-hidden="true">↗</span>
+            </Link>
+            <Link className="quiet" href="/cases">
+              개선 예시 보기 <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+          <small className="hero-note">
+            매장 1곳 · 개선 방향 최대 3개
+            <br />
+            완성 원고·사진 작업·실제 수정은 별도 범위입니다.
+          </small>
+        </div>
+        <aside
+          className="preview-stage"
+          aria-label="가상의 매장 개선 노트 예시"
+        >
+          <div className="preview-stamp">가게다움을 발견하는 일</div>
+          <div className="note-sheet">
+            <div className="note-top">
+              <span className="note-mark">한</span>
+              <span>매장 개선 노트</span>
+              <span className="note-example">가상 예시</span>
+            </div>
+            <div className="note-title">
+              <span>가상의 한칸식당</span>
+              <h2>
+                첫 방문 전에,
+                <br />
+                궁금한 점부터.
+              </h2>
+              <p>메뉴 구성과 포장 안내를 함께 보여준다면?</p>
+            </div>
+            <div className="note-tiles">
+              <div>
+                <span className="tile-icon" aria-hidden="true">
+                  Aa
+                </span>
+                <strong>소개·메뉴</strong>
+                <small>가게의 특징을 구체적으로</small>
+              </div>
+              <div>
+                <span className="tile-icon" aria-hidden="true">
+                  ▧
+                </span>
+                <strong>사진·이용 안내</strong>
+                <small>방문 전에 알기 쉽게</small>
+              </div>
+            </div>
+            <div className="note-caption">
+              <span>확인이 필요한 부분</span>
+              <p>메뉴는 있지만, 무엇이 포함되는지 설명이 없어요.</p>
+            </div>
+            <div className="note-caption note-suggestion">
+              <span>고객 확인 후 쓸 문구 예시</span>
+              <p>
+                “점심 정식은 밥·국·반찬으로 구성됩니다. 포장이 필요하면 주문할
+                때 말씀해주세요.”
+              </p>
+            </div>
+            <div className="note-foot">
+              <span className="status-dot" />
+              가설과 사실을 구분하고, 승인 후 적용합니다.
+            </div>
+          </div>
+          <small className="preview-disclaimer">
+            형식 설명을 위한 가상 자료입니다. 실제 고객 작업·성과가 아닙니다.
+          </small>
+        </aside>
+      </section>
+      <div className="service-ribbon">
+        <span>우선은 네이버 플레이스부터</span>
+        <div>
+          <b>소개</b>
+          <span aria-hidden="true">·</span>
+          <b>메뉴</b>
+          <span aria-hidden="true">·</span>
+          <b>고객 제공 사진</b>
+          <span aria-hidden="true">·</span>
+          <b>이용 안내</b>
+        </div>
+      </div>
+      <section className="section home-section">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">무엇을 도와드리나요</span>
+            <h2>
+              정보를 채우는 것보다,
+              <br />
+              가게를 이해하기 쉽게.
+            </h2>
+          </div>
+          <p>
+            막연한 홍보 제안 대신,
+            <br />
+            확인한 사실로 바꿀 내용을 정합니다.
+          </p>
+        </div>
+        <div className="cards value-cards">
+          {[
+            [
+              "01",
+              "빠진 정보를 찾고",
+              "유사 매장 3곳의 정보 구성을 참고해, 손님이 방문 전에 궁금해할 항목을 찾습니다.",
+            ],
+            [
+              "02",
+              "가게답게 정리하고",
+              "인터뷰와 고객 자료를 바탕으로 소개문·메뉴·사진·이용 안내를 정리합니다.",
+            ],
+            [
+              "03",
+              "적용까지 함께합니다",
+              "승인받은 내용을 적용하거나 직접 수정을 돕고, 반영 여부를 한 번 더 확인합니다.",
+            ],
+          ].map(([n, t, b]) => (
+            <article className="card" key={n}>
+              <span className="step-token">{n}</span>
+              <h3>{t}</h3>
+              <p>{b}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+      <section className="section home-section sample-section">
+        <Sample />
+      </section>
+      <section className="section home-section">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">필요한 만큼만 시작하세요</span>
+            <h2>
+              가볍게 확인하고,
+              <br />
+              개선은 범위를 정한 뒤.
+            </h2>
+          </div>
+          <Link className="offer-link" href="/pricing">
+            범위·견적 자세히 보기 →
+          </Link>
+        </div>
+        <div className="cards compact-packages">
+          {[
+            {
+              n: "01",
+              title: "무료 간단 진단",
+              price: "0원",
+              desc: "어디부터 바꿀지 궁금하다면",
+              items: [
+                "네이버 공개 페이지 확인",
+                "개선 방향 최대 3개",
+                "완성 원고·수정 작업 제외",
+              ],
+              label: "무료 진단 신청",
+              href: "/free-audit",
+            },
+            {
+              n: "02",
+              title: "초기 개선",
+              price: "자료 확인 후 별도 견적",
+              desc: "실제 자료로 가게의 모습을 정리",
+              items: [
+                "인터뷰·유사 매장 3곳 비교",
+                "소개문·메뉴·제공 사진 정리",
+                "피드백 1회·적용 지원·재확인",
+              ],
+              label: "초기 개선 범위 보기",
+              href: "/services",
+            },
+            {
+              n: "03",
+              title: "월간 운영",
+              price: "반복 수요 확인 후 별도 견적",
+              desc: "꾸준히 바뀌는 정보가 있다면",
+              items: [
+                "월 1회 계획·소식 2건",
+                "변경 요청 월 1회 취합",
+                "확인 가능한 지표·다음 제안",
+              ],
+              label: "월간 운영 범위 보기",
+              href: "/services",
+            },
+          ].map((p) => (
+            <article className="card compact-package" key={p.n}>
+              <span className="package-number">{p.n}</span>
+              <p className="package-audience">{p.desc}</p>
+              <h3>{p.title}</h3>
+              <strong className="package-price">{p.price}</strong>
+              <ul>
+                {p.items.map((i) => (
+                  <li key={i}>{i}</li>
+                ))}
+              </ul>
+              <Link className="offer-link" href={p.href}>
+                {p.label} <span aria-hidden="true">↗</span>
+              </Link>
+            </article>
+          ))}
+        </div>
+        <p className="scope-note">
+          무료 진단 후 유료 전환 의무는 없습니다. 추가 채널·촬영·광고는 기본
+          범위에 포함되지 않습니다.
+        </p>
+      </section>
+      <section className="section home-section fit-section">
+        <div>
+          <span className="eyebrow">함께할 매장</span>
+          <h2>
+            이런 사장님께
+            <br />잘 맞습니다.
+          </h2>
+        </div>
+        <div>
+          <ul className="fit-list">
+            <li>영업 중인 동네 개인 식당을 운영하고 있어요.</li>
+            <li>가게의 특징과 이용 정보를 더 잘 보여주고 싶어요.</li>
+            <li>인터뷰와 메뉴·사진 자료 제공이 가능해요.</li>
+          </ul>
+          <details className="scope-details">
+            <summary>제공하지 않는 작업도 확인해주세요</summary>
+            <p>
+              검색 순위·매출 보장, 허위 리뷰, 전문 촬영·영상·광고, 무제한
+              작업·상시 응대는 제공하지 않습니다. 권한상 직접 적용이 어려우면
+              고객의 직접 수정을 지원합니다.
+            </p>
+          </details>
+        </div>
+      </section>
+      <section className="section home-section">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">한 사람이 책임 있게</span>
+            <h2>
+              인터뷰부터 결과 확인까지,
+              <br />
+              유성균 운영자가 함께합니다.
+            </h2>
+          </div>
+          <Link className="offer-link" href="/contact">
+            운영자·책임 범위 보기 →
+          </Link>
+        </div>
+        <div className="operator-note">
+          <span className="operator-avatar" aria-hidden="true">
+            한
+          </span>
+          <p>
+            한칸데이터는 초기 고객과 제공 범위를 검증하는 1인 서비스입니다.
+            <br />
+            검증되지 않은 성공 사례 대신, 확인한 사실과 합의한 작업을
+            기록합니다.
+          </p>
+        </div>
+      </section>
+      <section className="section home-section home-faq">
+        <div>
+          <span className="eyebrow">신청 전 확인하세요</span>
+          <h2>
+            궁금한 점을
+            <br />
+            먼저 풀어드릴게요.
+          </h2>
+          <Link className="offer-link" href="/faq">
+            질문 전체 보기 →
+          </Link>
+        </div>
+        <div className="faq">
+          {faqs.slice(1, 4).map(([q, a]) => (
+            <details className="card" key={q}>
+              <summary>{q}</summary>
+              <p>{a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+      <section className="section home-section">
+        <CallToAction />
+      </section>
+    </>
+  );
+}
+export default function Public({ page = "" }: { page?: string }) {
+  return (
+    <div className="public-site">
+      <a className="skip-link" href="#public-content">
+        본문으로 바로가기
+      </a>
       <header className="top">
         <Link href="/" className="brand">
           <i>한</i> 한칸데이터
@@ -182,150 +489,9 @@ export default function Public({ page = "" }: { page?: string }) {
           무료 진단 신청 ↗
         </Link>
       </header>
-      <main>
+      <main id="public-content">
         {!page ? (
-          <>
-            <section className="hero">
-              <div>
-                <span className="eyebrow">
-                  동네 개인 식당을 위한 매장 온라인 개선·운영
-                </span>
-                <h1>
-                  우리 가게의 장점,
-                  <br />
-                  <em>네이버에서</em>
-                  <br />잘 보이고 있나요?
-                </h1>
-                <p>
-                  메뉴는 있지만 설명이 부족하고, 사진은 많은데 무엇을 보여줘야
-                  할지 막막하다면.
-                  <br />
-                  사장님과 확인한 강점을 소개·메뉴·사진·이용 안내로 정리하고
-                  적용까지 돕습니다.
-                </p>
-                <Link className="btn" href="/free-audit">
-                  무료 간단 진단 신청 ↗
-                </Link>
-                <Link className="quiet" href="/cases">
-                  받게 될 결과물 보기
-                </Link>
-                <small>
-                  매장 1곳 · 공개 페이지 확인 · 개선 방향 최대 3개
-                  <br />
-                  완성 원고·사진 작업·실제 수정은 별도 범위입니다.
-                </small>
-              </div>
-              <div className="hero-board">
-                <div className="board-title">
-                  초기 개선에서 받는 것{" "}
-                  <span className="tag">합의한 범위로 진행</span>
-                </div>
-                {[
-                  [
-                    "01",
-                    "가게다운 소개문 1안",
-                    "인터뷰에서 확인한 강점을 반영",
-                  ],
-                  [
-                    "02",
-                    "핵심 메뉴 최대 5개",
-                    "구성·특징·이용 정보를 이해하기 쉽게",
-                  ],
-                  ["03", "제공 사진 최대 10장", "선정·기본 보정·활용 제안"],
-                  [
-                    "04",
-                    "이용 안내와 적용 기록",
-                    "주차·예약 등 해당 안내 · 이후 1회 재확인",
-                  ],
-                ].map(([n, t, s]) => (
-                  <div className="board-row" key={n}>
-                    <b>{n}</b>
-                    <div>
-                      <strong>{t}</strong>
-                      <small>{s}</small>
-                    </div>
-                  </div>
-                ))}
-                <p>
-                  무료 진단의 결과물이 아닙니다. 유료 초기 개선은 자료·권한 확인
-                  후 별도 견적을 안내합니다.
-                </p>
-              </div>
-            </section>
-            <section className="section">
-              <span className="eyebrow">정보 정리에서 적용 지원까지</span>
-              <h2>사장님이 아는 강점을, 손님이 판단할 수 있는 정보로.</h2>
-              <div className="cards">
-                {[
-                  [
-                    "무엇이 빠졌는지 찾습니다",
-                    "유사 매장 3곳의 정보 구성을 비교하고, 의뢰 매장의 방문 판단에 필요한 내용을 확인합니다.",
-                  ],
-                  [
-                    "실제 자료로 만듭니다",
-                    "소개문·메뉴·사진·주차·휴무·포장·예약 안내를 사장님과 확인한 사실로 정리합니다.",
-                  ],
-                  [
-                    "적용 상태까지 남깁니다",
-                    "승인받은 내용을 적용하거나 직접 수정을 지원하고, 적용·반영 대기·불가 항목을 구분합니다.",
-                  ],
-                ].map(([t, b]) => (
-                  <article className="card" key={t}>
-                    <h3>{t}</h3>
-                    <p>{b}</p>
-                  </article>
-                ))}
-              </div>
-            </section>
-            <section className="section">
-              <Sample />
-            </section>
-            <section className="section">
-              <Suitability />
-            </section>
-            <section className="section">
-              <h2>무료 확인부터, 필요한 만큼만.</h2>
-              <PackageCards />
-              <p className="scope-note">
-                구글·인스타·홈페이지는 현재 기본 상품에 포함되지 않습니다.
-                필요하면 별도 범위로 검토합니다.
-              </p>
-            </section>
-            <section className="section">
-              <h2>제안서에서 끝나지 않는 진행 방식</h2>
-              <div className="cards">
-                {steps.slice(1, 4).map(([t, b]) => (
-                  <article className="card" key={t}>
-                    <h3>{t}</h3>
-                    <p>{b}</p>
-                  </article>
-                ))}
-              </div>
-              <Link className="offer-link" href="/how-it-works">
-                적용 지원과 재확인까지 전체 과정 보기 ↗
-              </Link>
-            </section>
-            <section className="section">
-              <Operator />
-            </section>
-            <section className="section">
-              <h2>신청 전 궁금한 점</h2>
-              <div className="faq">
-                {faqs.slice(1, 4).map(([q, a]) => (
-                  <details className="card" key={q}>
-                    <summary>{q}</summary>
-                    <p>{a}</p>
-                  </details>
-                ))}
-              </div>
-              <Link className="offer-link" href="/faq">
-                자주 묻는 질문 전체 보기 ↗
-              </Link>
-            </section>
-            <section className="section">
-              <CallToAction />
-            </section>
-          </>
+          <Home />
         ) : (
           <section className="section page-section">
             <span className="eyebrow">한칸데이터 · 매장 온라인 개선·운영</span>
@@ -568,6 +734,6 @@ export default function Public({ page = "" }: { page?: string }) {
           </a>
         </small>
       </footer>
-    </>
+    </div>
   );
 }
