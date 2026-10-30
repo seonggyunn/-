@@ -691,3 +691,130 @@ code {
     flex-shrink: 0;
   }
 }
+
+/* Public product pages: keep admin styles independent. */
+.offer-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.offer-card h2 {
+  margin: 14px 0 8px;
+}
+.offer-card ul {
+  padding-left: 20px;
+  flex: 1;
+}
+.offer-card li,
+.public-block li {
+  margin: 8px 0;
+}
+.offer-card .eyebrow {
+  letter-spacing: 0;
+}
+.offer-price {
+  color: var(--blue);
+  font-size: 18px;
+}
+.offer-link {
+  display: inline-block;
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  margin: 12px 0;
+}
+.two-cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.sample-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin: 24px 0;
+}
+.sample-grid > div {
+  background: var(--bg);
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 0;
+}
+.sample-card h2 {
+  margin-top: 18px;
+}
+.sample-table-wrap {
+  overflow-x: auto;
+  margin: 22px 0;
+}
+.sample-table-wrap table {
+  min-width: 640px;
+}
+.sample-table-wrap caption {
+  text-align: left;
+  color: var(--muted);
+  padding-bottom: 12px;
+}
+.public-block {
+  margin: 38px 0;
+  max-width: 920px;
+}
+.scope-note {
+  margin: 20px 0;
+}
+.audit-cta {
+  background: var(--bg);
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.audit-cta small {
+  margin-top: 14px;
+}
+.optional-fields {
+  margin: 22px 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.optional-fields summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.hero-board p {
+  font-size: 13px;
+  margin-bottom: 0;
+}
+.hero .eyebrow {
+  letter-spacing: 0.3px;
+}
+.public-block,
+.sample-card,
+.offer-card,
+.audit-form {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 850px) {
+  .two-cards,
+  .sample-grid {
+    grid-template-columns: 1fr;
+  }
+  .audit-cta {
+    padding: 22px;
+  }
+  .top {
+    gap: 12px;
+  }
+  .top .btn.small {
+    padding-inline: 10px;
+  }
+  .hero h1 {
+    font-size: clamp(31px, 8vw, 43px);
+  }
+  .audit-form .check {
+    flex-wrap: nowrap;
+  }
+}
+
+.intake-notes {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

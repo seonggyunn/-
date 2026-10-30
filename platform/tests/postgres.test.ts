@@ -137,6 +137,28 @@ if (process.env.RUN_POSTGRES_TEST !== "1") {
       db.run("UPDATE activity_logs SET action='forged'"),
     );
   });
+  await test("PostgreSQL 식당 v2 신청·선택 담당자·새 동의와 기존 조회 호환", async () => {
+    const result = await s.createLead({
+      request_version: "restaurant-v2",
+      business: "PG 검증 식당",
+      industry: "음식점",
+      email: "pg-restaurant@example.invalid",
+      services: ["naver"],
+      place_identifier: "서울 가상의 테스트 주소",
+      concern: "photos",
+      materials: "partial",
+      privacy: true,
+      contact_consent: true,
+    });
+    const detail = await s.detail(a, result.id!);
+    assert.equal(detail.contact, "");
+    assert.ok(detail.notes.includes("사진 선정·활용"));
+    assert.ok(detail.notes.includes("일부 자료 있음"));
+    assert.equal(detail.consents[0].version, "2026-10-30-restaurant-v2");
+    assert.ok(
+      (await s.dashboard(a)).leads.some((l: any) => l.id === result.id),
+    );
+  });
   after(async () => {
     await closeDb();
     await adminPool.query("DROP DATABASE " + databaseName);

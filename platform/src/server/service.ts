@@ -58,25 +58,69 @@ export const url = z
       return false;
     }
   }, "공개 http(s) 주소를 입력하세요.");
-export const intake = z.object({
-  business: z.string().trim().min(1).max(150),
-  industry: z.string().trim().min(1).max(100),
-  naver_url: url.default(""),
-  google_url: url.default(""),
-  website: url.default(""),
-  contact: z.string().trim().min(1).max(100),
-  email: z.email().max(254),
-  phone: z.string().trim().max(40).default(""),
-  services: z
-    .array(z.enum(["naver", "google", "website", "routine"]))
-    .min(1)
-    .max(4),
-  notes: z.string().trim().max(4000).default(""),
-  privacy: z.literal(true),
-  contact_consent: z.literal(true),
-  marketing: z.boolean().default(false),
-  website_trap: z.string().max(100).default(""),
-});
+export const concernLabels: Record<string, string> = {
+  unsure: "잘 모르겠음 · 전체적으로 확인 요청",
+  strength: "가게의 특징 전달",
+  menu: "메뉴·가격 설명",
+  photos: "사진 선정·활용",
+  visit: "주차·예약 등 이용 안내",
+  accuracy: "기본정보 확인",
+};
+const materialLabels = {
+  unsure: "잘 모르겠음",
+  ready: "메뉴·사용 가능한 사진 있음",
+  partial: "일부 자료 있음",
+  none: "준비된 자료 없음",
+};
+export const intake = z
+  .object({
+    request_version: z.literal("restaurant-v2").optional(),
+    place_identifier: z.string().trim().max(500).default(""),
+    concern: z
+      .enum(["unsure", "strength", "menu", "photos", "visit", "accuracy"])
+      .default("unsure"),
+    materials: z.enum(["unsure", "ready", "partial", "none"]).default("unsure"),
+    source: z.string().trim().max(150).default(""),
+    business: z.string().trim().min(1).max(150),
+    industry: z.string().trim().min(1).max(100),
+    naver_url: url.default(""),
+    google_url: url.default(""),
+    website: url.default(""),
+    contact: z.string().trim().max(100).default(""),
+    email: z.email().max(254),
+    phone: z.string().trim().max(40).default(""),
+    services: z
+      .array(z.enum(["naver", "google", "website", "routine"]))
+      .min(1)
+      .max(4),
+    notes: z.string().trim().max(4000).default(""),
+    privacy: z.literal(true),
+    contact_consent: z.literal(true),
+    marketing: z.boolean().default(false),
+    website_trap: z.string().max(100).default(""),
+  })
+  .superRefine((data, ctx) => {
+    if (data.request_version === "restaurant-v2") {
+      if (!data.place_identifier)
+        ctx.addIssue({
+          code: "custom",
+          path: ["place_identifier"],
+          message: "매장 지역·주소 또는 지도 링크를 입력하세요.",
+        });
+      if (data.notes.length > 3000)
+        ctx.addIssue({
+          code: "custom",
+          path: ["notes"],
+          message: "추가 내용은 3000자 이내로 입력하세요.",
+        });
+    } else if (!data.contact) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["contact"],
+        message: "담당자를 입력하세요.",
+      });
+    }
+  });
 export async function log(
   q: SQL,
   a: Actor | { id: string; org_id: string },
@@ -150,6 +194,22 @@ export async function createLead(raw: unknown): Promise<{
 }> {
   const d = intake.parse(raw);
   if (d.website_trap) return { stored: false };
+  // Reuse notes so existing admin, reports and old clients remain compatible.
+  // Do not rename channels or overload the website URL with location text.
+  const restaurant = d.request_version === "restaurant-v2";
+  const consentVersion = restaurant
+    ? "2026-10-30-restaurant-v2"
+    : "2026-10-29-v1";
+  const intakeNotes = restaurant
+    ? [
+        "[매장 온라인 개선 · 신청 정보]",
+        "매장 식별: " + d.place_identifier,
+        "고민: " + concernLabels[d.concern],
+        "메뉴·사진 자료: " + materialLabels[d.materials],
+        "신청 경로: " + (d.source || "미입력"),
+        "추가 내용: " + (d.notes || "미입력"),
+      ].join("\n")
+    : d.notes;
   return transaction(async (q) => {
     const org = process.env.PUBLIC_ORG_ID || "agency";
     const fingerprint = hash(
@@ -158,7 +218,7 @@ export async function createLead(raw: unknown): Promise<{
         d.email.toLowerCase(),
         d.business,
         d.services.slice().sort(),
-        d.notes,
+        intakeNotes,
         koreaDate(),
       ]),
     );
@@ -193,7 +253,7 @@ export async function createLead(raw: unknown): Promise<{
         d.google_url,
         d.website,
         JSON.stringify(d.services),
-        d.notes,
+        intakeNotes,
         fingerprint,
         t,
         t,
@@ -206,7 +266,7 @@ export async function createLead(raw: unknown): Promise<{
     ] as const)
       await q.run(
         "INSERT INTO consent_records(id,org_id,lead_id,purpose,granted,version,created_at) VALUES(?,?,?,?,?,?,?)",
-        [id(), org, lead, purpose, granted, "2026-10-29-v1", t],
+        [id(), org, lead, purpose, granted, consentVersion, t],
       );
     await q.run(
       "INSERT INTO tasks(id,org_id,lead_id,title,status,kind,due_at,dedupe_key,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)",
@@ -214,7 +274,9 @@ export async function createLead(raw: unknown): Promise<{
         id(),
         org,
         lead,
-        "무료 온라인 정보 진단",
+        restaurant
+          ? "무료 간단 진단 · 매장 온라인 개선"
+          : "무료 온라인 정보 진단",
         "NEW",
         "AUDIT",
         new Date(Date.now() + 3 * 86400000).toISOString(),
@@ -242,8 +304,10 @@ export async function createLead(raw: unknown): Promise<{
       lead,
       "ACK",
       d.email,
-      "무료 온라인 정보 진단 신청을 접수했습니다",
-      "신청이 저장되었습니다. 담당자가 범위를 확인해 회신합니다. 프로필 변경·계약·결제가 확정된 것은 아닙니다.",
+      "[한칸데이터] 무료 진단 신청을 접수했습니다",
+      restaurant
+        ? "신청이 저장되었습니다. 운영자 유성균이 매장과 요청 내용을 확인해 이메일로 회신합니다. 무료 진단은 네이버 공개 페이지의 핵심 개선 방향 최대 3개이며, 완성 문구·사진 작업·실제 수정은 별도 범위입니다. 유료 계약·결제·정보 수정 승인이 아닙니다."
+        : "신청이 저장되었습니다. 담당자가 범위를 확인해 회신합니다. 프로필 변경·계약·결제가 확정된 것은 아닙니다.",
       "ack:" + lead,
     );
     if (process.env.ADMIN_NOTIFICATION_EMAIL)
@@ -258,7 +322,7 @@ export async function createLead(raw: unknown): Promise<{
         "admin:" + lead,
       );
     await log(q, { id: "public", org_id: org }, lead, "LEAD_CREATED", {
-      consentVersion: "2026-10-29-v1",
+      consentVersion,
     });
     return { id: lead, stored: true, duplicate: false, email_sent: false };
   });

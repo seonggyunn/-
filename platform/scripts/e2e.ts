@@ -12,6 +12,10 @@ process.env.PRIVATE_STORAGE_PATH = join(folder, "private");
 delete process.env.DATABASE_URL;
 delete process.env.RESEND_API_KEY;
 delete process.env.AI_API_KEY;
+delete process.env.AUTO_EMAIL_DISPATCH;
+delete process.env.STORAGE_PROVIDER;
+delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+delete process.env.APP_URL;
 const { migrate } = await import("../src/server/db");
 const { provision } = await import("../src/server/auth");
 await migrate();
@@ -95,15 +99,39 @@ try {
     false,
   );
   console.log("PASS 모바일 홈페이지·신청 폼 가로 넘침 없음");
-  await page.getByLabel("상호명", { exact: true }).fill("브라우저 검증 공방");
-  await page.getByLabel("업종", { exact: true }).fill("공방");
-  await page.getByLabel("담당자 이름", { exact: true }).fill("검증 담당");
+  // Check every public layout at a narrow mobile width; tables may scroll inside their region.
+  await page.setViewportSize({ width: 360, height: 800 });
+  for (const route of [
+    "/",
+    "/services",
+    "/pricing",
+    "/cases",
+    "/faq",
+    "/free-audit",
+  ]) {
+    await page.goto(base + route);
+    assert.equal(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      ),
+      false,
+      route,
+    );
+  }
+  assert.equal(
+    await page
+      .getByRole("checkbox", { name: "네이버 플레이스", exact: true })
+      .count(),
+    0,
+  );
+  await page.getByLabel("상호명", { exact: true }).fill("브라우저 검증 식당");
+  await page
+    .getByLabel("매장 지역·주소 또는 지도 링크", { exact: true })
+    .fill("서울 광진구 가상의 테스트 주소 10");
+  // Leave contact and every optional field empty, and keep '잘 모르겠음'.
   await page
     .getByLabel("회신 이메일", { exact: true })
     .fill("browser-customer@example.invalid");
-  await page
-    .getByRole("checkbox", { name: "네이버 플레이스", exact: true })
-    .check();
   await page.getByRole("checkbox", { name: /상담을 위한/ }).check();
   await page.getByRole("checkbox", { name: /신청 확인/ }).check();
   const intakeResponse = page.waitForResponse(
@@ -119,7 +147,7 @@ try {
   await page.getByRole("heading", { name: "신청이 저장되었습니다." }).waitFor();
   const leadId = await page.locator("code").textContent();
   assert.ok(leadId);
-  console.log("PASS 실제 신청 저장·접수번호·미발송 안내");
+  console.log("PASS 새 신청 필수 항목만·잘 모르겠음·담당자 생략·실제 저장");
   assert.equal(
     (await context.request.get(base + "/api/dashboard")).status(),
     401,
@@ -138,6 +166,18 @@ try {
   console.log("PASS 관리자 로그인·HttpOnly 세션·익명 차단");
   await page.goto(base + "/admin/leads/" + leadId);
   await page.getByRole("heading", { name: "수동 진단 기록" }).waitFor();
+  await page.getByText("담당자 미입력", { exact: false }).waitFor();
+  assert.ok(
+    (await page.locator(".intake-notes").textContent())?.includes(
+      "서울 광진구 가상의 테스트 주소 10",
+    ),
+  );
+  assert.ok(
+    (await page.locator(".intake-notes").textContent())?.includes(
+      "전체적으로 확인 요청",
+    ),
+  );
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await page
     .getByLabel("항목 (예: 운영시간)", { exact: true })
     .fill("운영시간");

@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 export const metadata: Metadata = {
   title: {
-    default: "한칸 운영실 | 소상공인 온라인 관리",
-    template: "%s | 한칸 운영실",
+    default: "한칸데이터 | 식당 네이버 플레이스 개선·운영",
+    template: "%s | 한칸데이터",
   },
   description:
-    "네이버 플레이스, 구글 지도, 홈페이지 정보 관리와 승인 기반 작업 보고. 무료 온라인 정보 진단을 신청하세요.",
+    "동네 개인 식당의 강점을 소개·메뉴·사진·이용 안내로 정리합니다. 네이버 플레이스 무료 간단 진단부터 승인 기반 적용 지원까지.",
   robots: { index: true, follow: true },
 };
 export default function RootLayout({

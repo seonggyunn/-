@@ -277,9 +277,11 @@ export default function Admin({ path }: { path: string[] }) {
               <div className="split">
                 <div>
                   <h2>
-                    {lead.contact} · {lead.email}
+                    {lead.contact || "담당자 미입력"} · {lead.email}
                   </h2>
-                  <p>{lead.notes || "추가 요청 없음"}</p>
+                  <p className="intake-notes">
+                    {lead.notes || "추가 요청 없음"}
+                  </p>
                   <span className="tag">{labels[lead.status]}</span>
                 </div>
                 <button
@@ -703,7 +705,7 @@ export default function Admin({ path }: { path: string[] }) {
                 >
                   <b>{l.business}</b>
                   <span>{labels[l.status]}</span>
-                  <small>{l.contact}</small>
+                  <small>{l.contact || "담당자 미입력"}</small>
                 </Link>
               ))}
               {!data.leads.length && (

@@ -418,3 +418,49 @@ await test("연락 동의 철회 후 대기 알림과 재시도는 외부 전송
     delete process.env.EMAIL_FROM;
   }
 });
+
+await test("식당 v2 신청: 담당자 생략·잘 모르겠음·동의 버전·관리자 메모 보존", async () => {
+  const raw = {
+    request_version: "restaurant-v2",
+    business: "새 흐름 검증식당",
+    industry: "음식점",
+    email: "restaurant@example.invalid",
+    services: ["naver"],
+    place_identifier: "서울 가상주소 10",
+    privacy: true,
+    contact_consent: true,
+    concern: "unsure",
+    source: "테스트 소개",
+    notes: "포장 안내 고민",
+  };
+  const result = await s.createLead(raw);
+  const row = await s.detail(a, result.id!);
+  assert.equal(row.contact, "");
+  assert.ok(row.notes.includes("서울 가상주소 10"));
+  assert.ok(row.notes.includes("전체적으로 확인 요청"));
+  assert.ok(row.notes.includes("테스트 소개"));
+  assert.ok(row.notes.includes("포장 안내 고민"));
+  assert.equal(row.consents[0].version, "2026-10-30-restaurant-v2");
+  assert.equal(
+    row.consents.find((c: any) => c.purpose === "marketing").granted,
+    0,
+  );
+  assert.equal((await s.createLead(raw)).duplicate, true);
+  assert.equal(
+    (await s.createLead({ ...raw, place_identifier: "다른 동네 20" }))
+      .duplicate,
+    false,
+  );
+  const notifications = await db.all(
+    "SELECT body FROM notifications WHERE lead_id=? AND kind='ACK'",
+    [result.id],
+  );
+  assert.ok(notifications[0].body.includes("최대 3개"));
+  assert.ok(notifications[0].body.includes("실제 수정은 별도 범위"));
+  await assert.rejects(() => s.createLead({ ...raw, place_identifier: "" }));
+  await assert.rejects(() => s.createLead({ ...raw, privacy: false }));
+  await assert.rejects(() => s.createLead({ ...raw, concern: "made-up" }));
+  await assert.rejects(() => s.createLead({ ...raw, notes: "x".repeat(3001) }));
+  // The old request contract is still accepted, and its contact remains required.
+  await assert.rejects(() => s.createLead({ ...payload, contact: "" }));
+});
