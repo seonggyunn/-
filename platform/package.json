@@ -14,7 +14,8 @@
     "admin:create": "tsx scripts/manage.ts admin",
     "worker": "tsx scripts/manage.ts worker",
     "test:e2e": "tsx scripts/e2e.ts",
-    "postbuild": "node scripts/prepare-standalone.mjs"
+    "postbuild": "node scripts/prepare-standalone.mjs",
+    "test:game": "tsx scripts/game-e2e.ts"
   },
   "keywords": [],
   "author": "",
